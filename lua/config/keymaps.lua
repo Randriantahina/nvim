@@ -3,3 +3,5 @@
 -- Add any additional keymaps here
 
 vim.keymap.set("i", "jj", "<Esc>", { desc = "Exit insert mode" })
+vim.keymap.set("i", "<C-q>", "<", { desc = "Insert <" })
+vim.keymap.set("i", "<A-e>", ">", { desc = "Insert >" })

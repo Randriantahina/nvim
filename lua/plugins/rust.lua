@@ -1,8 +1,6 @@
+-- the lazyvim.plugins.extras.lang.rust import lives in config/lazy.lua (extras must be
+-- imported before "plugins" per LazyVim's import order); this file only overrides its opts.
 return {
-  -- LazyVim's official Rust extra: rustaceanvim (LSP via rust-analyzer, found on $PATH),
-  -- crates.nvim, treesitter, codelldb for debugging
-  { import = "lazyvim.plugins.extras.lang.rust" },
-
   -- use clippy instead of plain `cargo check` for richer lint diagnostics on save
   {
     "mrcjkb/rustaceanvim",
