@@ -19,6 +19,12 @@ require("lazy").setup({
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- import any extras modules here
+    -- these were enabled via :LazyExtras (tracked in lazyvim.json) but the actual
+    -- { import = ... } lines never made it into this spec, so lspconfig never
+    -- launched phpactor/vtsls/vue-language-server despite mason having them installed
+    { import = "lazyvim.plugins.extras.lang.php" },
+    { import = "lazyvim.plugins.extras.lang.vue" },
+    { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.lang.rust" },
     -- import/override with your plugins
     { import = "plugins" },
