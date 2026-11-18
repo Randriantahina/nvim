@@ -23,6 +23,8 @@ local plugins = {
   "https://github.com/esmuellert/codediff.nvim",
   "https://github.com/linrongbin16/gitlinker.nvim",
   "https://github.com/jwalton512/vim-blade",
+  "https://github.com/ColinKennedy/mega.logging",
+  "https://github.com/ColinKennedy/mega.cmdparse",
   "https://github.com/yetone/avante.nvim",
 }
 
