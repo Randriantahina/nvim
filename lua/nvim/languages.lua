@@ -34,7 +34,11 @@ vim.lsp.config("vtsls", {
   },
 })
 vim.lsp.config("vue_ls", {
-  init_options = { typescript = { tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib" } },
+  before_init = function(_, config)
+    local root = config.root_dir or vim.fn.getcwd()
+    config.init_options = config.init_options or {}
+    config.init_options.typescript = { tsdk = root .. "/node_modules/typescript/lib" }
+  end,
 })
 vim.lsp.config("rust_analyzer", {
   settings = { ["rust-analyzer"] = { check = { command = "clippy" }, cargo = { allFeatures = true } } },

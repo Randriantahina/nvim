@@ -25,20 +25,10 @@ local plugins = {
   "https://github.com/jwalton512/vim-blade",
   "https://github.com/ColinKennedy/mega.logging",
   "https://github.com/ColinKennedy/mega.cmdparse",
-  "https://github.com/yetone/avante.nvim",
+  "https://github.com/coder/claudecode.nvim",
+  "https://github.com/folke/which-key.nvim",
+  { src = "https://github.com/nvim-neo-tree/neo-tree.nvim", version = "v3.x" },
 }
-
-vim.api.nvim_create_autocmd("PackChanged", {
-  callback = function(event)
-    local name, kind = event.data.spec.name, event.data.kind
-    if name == "avante.nvim" and (kind == "install" or kind == "update") then
-      local result = vim.system({ "make" }, { cwd = event.data.path }):wait()
-      if result.code ~= 0 then
-        vim.notify("La compilation des bibliothèques Rust d'Avante a échoué.", vim.log.levels.ERROR)
-      end
-    end
-  end,
-})
 
 vim.pack.add(plugins)
 
@@ -88,7 +78,10 @@ setup("mini.icons", function(mini)
 end)
 setup("mini.pairs", function(mini) mini.setup() end)
 setup("oil", function(oil)
-  oil.setup({ view_options = { show_hidden = true } })
+  oil.setup({
+    view_options = { show_hidden = true },
+    keymaps = { ["q"] = { "actions.close", mode = "n" }, ["h"] = { "actions.parent", mode = "n" } },
+  })
   vim.keymap.set("n", "sf", function() oil.open_float() end, { desc = "Ouvrir le navigateur de fichiers" })
 end)
 setup("snacks", function(snacks)
@@ -170,7 +163,7 @@ setup("mason-tool-installer", function(installer)
     ensure_installed = {
       "lua-language-server", "vtsls", "eslint-lsp", "oxlint", "tailwindcss-language-server", "css-lsp",
       "rust-analyzer", "phpactor", "vue-language-server", "phpcs", "prettier", "prettierd", "oxfmt",
-      "stylua", "shfmt",
+      "stylua", "shfmt", "blade-formatter",
     },
     auto_update = false,
     run_on_start = true,
@@ -211,6 +204,7 @@ setup("conform", function(conform)
       return { timeout_ms = 1000, lsp_format = "fallback" }
     end,
     formatters = {
+      stylua = { require_cwd = false },
       oxfmt = { condition = function(_, ctx)
         return ctx.root and (vim.fn.filereadable(ctx.root .. "/.oxfmtrc.json") == 1
           or vim.fn.filereadable(ctx.root .. "/.oxfmtrc.jsonc") == 1
@@ -233,7 +227,8 @@ setup("conform", function(conform)
       less = { "oxfmt", "prettierd", "prettier" }, html = { "oxfmt", "prettierd", "prettier" },
       markdown = { "oxfmt", "prettierd", "prettier" }, mdx = { "oxfmt", "prettierd", "prettier" },
       yaml = { "oxfmt", "prettierd", "prettier" }, lua = { "stylua" }, sh = { "shfmt" },
-      fish = { "fish_indent" }, php = { "pint" }, rust = { "rustfmt" },
+      fish = { "fish_indent" }, php = { "pint", "php_cs_fixer", stop_after_first = true },
+      blade = { "blade-formatter" }, rust = { "rustfmt" },
     },
   })
   vim.api.nvim_create_user_command("ToggleFormatter", function()
@@ -267,33 +262,57 @@ setup("gitlinker", function(gitlinker)
   gitlinker.setup()
   vim.keymap.set({ "n", "v" }, "<leader>gy", "<cmd>GitLink<cr>", { desc = "Copier le lien Git" })
 end)
-setup("avante", function(avante)
-  vim.g.avante = {
-    provider = "claude-code",
-    mode = "agentic",
-    auto_suggestions_provider = nil,
-    selector = { provider = "snacks" },
-    input = { provider = "snacks" },
-    behaviour = {
-      auto_suggestions = false,
-      auto_set_keymaps = true,
-      auto_apply_diff_after_generation = false,
-      auto_approve_tool_permissions = false,
-      acp_follow_agent_locations = true,
+-- Claude Code : le vrai CLI `claude` dans un terminal à droite, relié à Neovim (pas d'ACP).
+setup("claudecode", function(cc)
+  cc.setup({
+    terminal_cmd = vim.fn.expand("~/.local/share/mise/installs/claude/latest/claude"),
+    terminal = { split_side = "right", split_width_percentage = 0.35, provider = "snacks" },
+  })
+  local map = vim.keymap.set
+  map("n", "<leader>ac", "<cmd>ClaudeCode<cr>", { desc = "Ouvrir / fermer Claude Code" })
+  -- Depuis le terminal Claude (Espace y sert à écrire, donc pas de <leader> ici)
+  map("t", "<A-h>", [[<C-\><C-n><C-w>h]], { desc = "Revenir au code (fenêtre de gauche)" })
+  map("t", "<C-Space>", "<cmd>ClaudeCode<cr>", { desc = "Fermer Claude Code" })
+  map("t", "<C-q>", [[<C-\><C-n>]], { desc = "Mode normal dans le terminal" })
+  map("n", "<leader>af", "<cmd>ClaudeCodeFocus<cr>", { desc = "Aller dans Claude Code" })
+  map("n", "<leader>ar", "<cmd>ClaudeCode --resume<cr>", { desc = "Reprendre une session" })
+  map("n", "<leader>aC", "<cmd>ClaudeCode --continue<cr>", { desc = "Continuer la dernière session" })
+  map("n", "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", { desc = "Ajouter ce fichier au contexte" })
+  map("v", "<leader>as", "<cmd>ClaudeCodeSend<cr>", { desc = "Envoyer la sélection à Claude" })
+  map("n", "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", { desc = "Accepter le diff" })
+  map("n", "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", { desc = "Refuser le diff" })
+end)
+
+-- Explorateur latéral (comme LazyVim) : <leader>e ouvre/ferme, l ouvre un dossier, h le ferme
+setup("neo-tree", function(nt)
+  nt.setup({
+    filesystem = {
+      filtered_items = { hide_dotfiles = false, always_show_by_pattern = { ".env*" } },
+      follow_current_file = { enabled = true },
     },
-    acp_providers = {
-      ["claude-code"] = {
-        command = "npx",
-        args = { "--yes", "@zed-industries/claude-agent-acp" },
-        env = {
-          NODE_NO_WARNINGS = "1",
-          PATH = os.getenv("PATH"),
-          HOME = os.getenv("HOME"),
-          ACP_PATH_TO_CLAUDE_CODE_EXECUTABLE = vim.fn.exepath("claude"),
-          ACP_PERMISSION_MODE = "default",
-        },
+    window = {
+      width = 32,
+      mappings = {
+        ["l"] = "open",
+        ["h"] = "close_node",
+        ["q"] = "close_window",
       },
     },
-  }
-  avante.setup()
+  })
+  vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Explorateur" })
+end)
+
+setup("which-key", function(wk)
+  wk.setup({ preset = "classic", delay = 300 })
+  wk.add({
+    { "<leader>a", group = "IA (Claude Code)" },
+    { "<leader>c", group = "Code" },
+    { "<leader>g", group = "Git" },
+    { "<leader>d", group = "Diff" },
+    { "<leader>y", group = "Copier" },
+    { "<leader>b", group = "Buffers" },
+    { ";", group = "Recherche" },
+    { "s", group = "Fenêtres / explorateur" },
+  })
+  vim.keymap.set("n", "<leader>?", function() wk.show({ global = false }) end, { desc = "Raccourcis du buffer" })
 end)

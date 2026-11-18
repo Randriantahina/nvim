@@ -4,6 +4,7 @@ local opts = { noremap = true, silent = true }
 map("i", "jj", "<Esc>", { desc = "Retour au mode normal" })
 map("n", "<leader>q", "<cmd>qa<cr>", { desc = "Quitter Neovim" })
 map("n", "<leader>w", "<cmd>write<cr>", { desc = "Enregistrer" })
+map({ "n", "i", "v", "x" }, "<C-s>", "<cmd>write<cr><esc>", { desc = "Enregistrer (et formater)" })
 map("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Quitter sans enregistrer" })
 map("n", "x", '"_x', opts)
 map("n", "<leader>d", '"_d', opts)
