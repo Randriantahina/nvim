@@ -104,7 +104,7 @@ end)
 setup("lualine", function(lualine)
   local function project_root()
     local file = vim.api.nvim_buf_get_name(0)
-    local markers = { ".git", "lua", "package.json", "Makefile", "Cargo.toml", "go.mod", "pyproject.toml" }
+    local markers = { ".git", "lua", "package.json", "composer.json", "Makefile", "Cargo.toml", "go.mod", "pyproject.toml" }
     local start = file ~= "" and vim.fn.fnamemodify(file, ":h") or vim.fn.getcwd()
     local found = vim.fs.find(markers, { upward = true, path = start })[1]
     if not found then return "" end
