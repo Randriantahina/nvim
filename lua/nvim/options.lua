@@ -12,6 +12,7 @@ opt.scrolloff = 10
 opt.sidescrolloff = 8
 opt.signcolumn = "yes"
 opt.laststatus = 3
+opt.cmdheight = 0
 opt.showmatch = true
 opt.matchtime = 2
 opt.ignorecase = true
@@ -29,6 +30,8 @@ opt.ttimeoutlen = 0
 opt.splitbelow = true
 opt.splitright = true
 opt.foldlevel = 99
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.expandtab = true
 opt.shiftwidth = 2
 opt.softtabstop = 2
@@ -43,3 +46,16 @@ opt.fillchars:append({ diff = "╱" })
 opt.iskeyword:append("-")
 
 vim.g.autoformat = true
+
+require("vim._core.ui2").enable({
+  msg = {
+    target = "cmd",
+    targets = {
+      echo = "msg", echomsg = "msg", echoerr = "msg", emsg = "msg", lua_print = "msg", lua_error = "msg",
+      return_prompt = "pager", list_cmd = "pager", shell_out = "pager", quickfix = "pager",
+      search_count = "cmd", search_cmd = "cmd", confirm = "cmd",
+    },
+    msg = { height = 0.3, timeout = 5000 },
+    pager = { height = 0.5 },
+  },
+})

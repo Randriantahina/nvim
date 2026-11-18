@@ -25,3 +25,12 @@ vim.api.nvim_create_autocmd("WinLeave", {
   group = group,
   callback = function() vim.wo.cursorline = false end,
 })
+
+vim.api.nvim_create_autocmd("PackChanged", {
+  group = group,
+  callback = function(event)
+    if event.data and event.data.kind == "install" and event.data.spec and event.data.spec.name == "nvim-treesitter" then
+      vim.schedule(function() pcall(vim.cmd, "TSUpdate") end)
+    end
+  end,
+})

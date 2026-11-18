@@ -1,12 +1,10 @@
--- Neovim 0.12 merges these server definitions with nvim-lspconfig's defaults.
 local servers = {
-  "phpactor",
-  "vtsls",
-  "vue_ls",
-  "eslint",
-  "rust_analyzer",
-  "lua_ls",
+  "phpactor", "vtsls", "vue_ls", "eslint", "oxlint", "tailwindcss", "cssls", "rust_analyzer", "lua_ls",
 }
+
+vim.lsp.config("*", {
+  capabilities = require("blink.cmp").get_lsp_capabilities(),
+})
 
 vim.lsp.config("phpactor", {
   filetypes = { "php" },
@@ -20,34 +18,28 @@ vim.lsp.config("vtsls", {
     vtsls = {
       tsserver = {
         globalPlugins = {
-          {
-            name = "@vue/typescript-plugin",
-            location = vue_ls_path,
-            languages = { "vue" },
-            configNamespace = "typescript",
-          },
+          { name = "@vue/typescript-plugin", location = vue_ls_path, languages = { "vue" }, configNamespace = "typescript" },
         },
+      },
+    },
+    typescript = {
+      updateImportsOnFileMove = { enabled = "always" },
+      inlayHints = {
+        variableTypes = { enabled = false },
+        parameterTypes = { enabled = false },
+        functionLikeReturnTypes = { enabled = false },
+        propertyDeclarationTypes = { enabled = false },
       },
     },
   },
 })
 vim.lsp.config("vue_ls", {
-  init_options = {
-    typescript = { tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib" },
-  },
+  init_options = { typescript = { tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib" } },
 })
 vim.lsp.config("rust_analyzer", {
-  settings = {
-    ["rust-analyzer"] = {
-      check = { command = "clippy" },
-      cargo = { allFeatures = true },
-    },
-  },
+  settings = { ["rust-analyzer"] = { check = { command = "clippy" }, cargo = { allFeatures = true } } },
 })
-vim.lsp.config("eslint", {
-  settings = { workingDirectory = { mode = "auto" } },
-})
-
+vim.lsp.config("eslint", { settings = { workingDirectory = { mode = "auto" } } })
 vim.lsp.enable(servers)
 
 vim.diagnostic.config({
@@ -55,9 +47,16 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = true,
   virtual_text = { prefix = "●", source = "if_many" },
-  signs = true,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "",
+      [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.INFO] = "",
+      [vim.diagnostic.severity.HINT] = "󰌵",
+    },
+  },
   float = { border = "rounded", source = "if_many" },
 })
 
--- Blade files use the dedicated syntax plugin; PHP LSP and phpcs handle PHP files.
+-- vim-blade sets the Blade syntax; PHP LSP diagnostics remain on PHP buffers.
 vim.filetype.add({ pattern = { [".*%.blade%.php"] = "blade" } })
