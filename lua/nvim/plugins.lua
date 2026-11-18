@@ -28,6 +28,18 @@ local plugins = {
   "https://github.com/yetone/avante.nvim",
 }
 
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(event)
+    local name, kind = event.data.spec.name, event.data.kind
+    if name == "avante.nvim" and (kind == "install" or kind == "update") then
+      local result = vim.system({ "make" }, { cwd = event.data.path }):wait()
+      if result.code ~= 0 then
+        vim.notify("La compilation des bibliothèques Rust d'Avante a échoué.", vim.log.levels.ERROR)
+      end
+    end
+  end,
+})
+
 vim.pack.add(plugins)
 
 local function setup(name, fn)
