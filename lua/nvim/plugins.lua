@@ -6,7 +6,7 @@ local plugins = {
   "https://github.com/neovim/nvim-lspconfig",
   "https://github.com/mason-org/mason.nvim",
   "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim",
-  "https://github.com/saghen/blink.cmp",
+  { src = "https://github.com/saghen/blink.cmp", version = "v1" },
   "https://github.com/stevearc/conform.nvim",
   "https://github.com/mfussenegger/nvim-lint",
   "https://github.com/lewis6991/gitsigns.nvim",
