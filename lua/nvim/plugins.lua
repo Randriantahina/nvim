@@ -92,7 +92,8 @@ setup("snacks", function(snacks)
     lazygit = { enabled = true },
   })
   local map = vim.keymap.set
-  map("n", ";f", function() snacks.picker.files({ hidden = true }) end, { desc = "Fichiers" })
+  map("n", "<leader><leader>", function() snacks.picker.files({ hidden = true }) end, { desc = "Chercher un fichier" })
+  map("n", "<leader>/", function() snacks.picker.lines() end, { desc = "Chercher dans ce fichier" })
   map("n", ";r", function() snacks.picker.grep({ hidden = true }) end, { desc = "Recherche texte" })
   map("n", ";;", function() snacks.picker.resume() end, { desc = "Recherche précédente" })
   map("n", "\\\\", function() snacks.picker.buffers() end, { desc = "Buffers" })

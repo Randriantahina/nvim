@@ -125,7 +125,8 @@ Ordre de chargement (`init.lua`) : `options` → `keymaps` → `autocmds` → `p
 ### Recherche (snacks)
 | Touches | Action |
 |---|---|
-| `;f` | Fichiers (cachés inclus) |
+| `Espace Espace` | Chercher un fichier (cachés inclus) |
+| `Espace /` | Chercher dans le fichier courant (liste des lignes) |
 | `;r` | Recherche de texte |
 | `;;` | Reprendre la dernière recherche |
 | `\\` | Liste des buffers |
