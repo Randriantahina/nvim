@@ -27,6 +27,7 @@ local plugins = {
   "https://github.com/ColinKennedy/mega.cmdparse",
   "https://github.com/coder/claudecode.nvim",
   "https://github.com/folke/which-key.nvim",
+  "https://github.com/akinsho/flutter-tools.nvim",
   { src = "https://github.com/nvim-neo-tree/neo-tree.nvim", version = "v3.x" },
 }
 
@@ -174,7 +175,7 @@ local parsers = {
   "astro", "bash", "c", "cmake", "cpp", "css", "diff", "fish", "gitignore", "go", "graphql", "html",
   "http", "java", "javascript", "jsdoc", "json", "lua", "luadoc", "luap", "markdown", "markdown_inline",
   "php", "printf", "python", "query", "regex", "rust", "scss", "sql", "svelte", "toml", "tsx",
-  "typescript", "vim", "vimdoc", "xml", "yaml", "vue",
+  "typescript", "vim", "vimdoc", "xml", "yaml", "vue", "dart",
 }
 setup("nvim-treesitter", function(ts)
   ts.install(parsers)
@@ -228,7 +229,7 @@ setup("conform", function(conform)
       markdown = { "oxfmt", "prettierd", "prettier" }, mdx = { "oxfmt", "prettierd", "prettier" },
       yaml = { "oxfmt", "prettierd", "prettier" }, lua = { "stylua" }, sh = { "shfmt" },
       fish = { "fish_indent" }, php = { "pint", "php_cs_fixer", stop_after_first = true },
-      blade = { "blade-formatter" }, rust = { "rustfmt" },
+      blade = { "blade-formatter" }, rust = { "rustfmt" }, dart = { "dart_format" },
     },
   })
   vim.api.nvim_create_user_command("ToggleFormatter", function()
@@ -302,10 +303,36 @@ setup("neo-tree", function(nt)
   vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Explorateur" })
 end)
 
+-- Flutter / Dart : serveur dartls, devices, hot reload, logs, arbre des widgets
+setup("flutter-tools", function(ft)
+  ft.setup({
+    lsp = {
+      capabilities = require("blink.cmp").get_lsp_capabilities(),
+      settings = { showTodos = true, completeFunctionCalls = true, renameFilesWithClasses = "prompt" },
+    },
+    widget_guides = { enabled = true },
+    closing_tags = { highlight = "Comment", prefix = "// ", enabled = true },
+    dev_log = { enabled = true, open_cmd = "tabedit" },
+    outline = { auto_open = false },
+  })
+  local map = vim.keymap.set
+  map("n", "<leader>Fr", "<cmd>FlutterRun<cr>", { desc = "Lancer l'app" })
+  map("n", "<leader>Fd", "<cmd>FlutterDevices<cr>", { desc = "Choisir l'appareil" })
+  map("n", "<leader>Fe", "<cmd>FlutterEmulators<cr>", { desc = "Choisir l'émulateur" })
+  map("n", "<leader>Fh", "<cmd>FlutterReload<cr>", { desc = "Hot reload" })
+  map("n", "<leader>FR", "<cmd>FlutterRestart<cr>", { desc = "Hot restart" })
+  map("n", "<leader>Fq", "<cmd>FlutterQuit<cr>", { desc = "Arrêter l'app" })
+  map("n", "<leader>Fo", "<cmd>FlutterOutlineToggle<cr>", { desc = "Plan des widgets" })
+  map("n", "<leader>Fl", "<cmd>FlutterLogToggle<cr>", { desc = "Logs" })
+  map("n", "<leader>Ft", "<cmd>FlutterDevTools<cr>", { desc = "DevTools" })
+  map("n", "<leader>Fp", "<cmd>FlutterPubGet<cr>", { desc = "pub get" })
+end)
+
 setup("which-key", function(wk)
   wk.setup({ preset = "classic", delay = 300 })
   wk.add({
     { "<leader>a", group = "IA (Claude Code)" },
+    { "<leader>F", group = "Flutter" },
     { "<leader>c", group = "Code" },
     { "<leader>g", group = "Git" },
     { "<leader>d", group = "Diff" },
