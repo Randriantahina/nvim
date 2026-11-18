@@ -1,2 +1,10 @@
--- bootstrap lazy.nvim, LazyVim and your plugins
-require("config.lazy")
+vim.loader.enable()
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+require("nvim.options")
+require("nvim.keymaps")
+require("nvim.autocmds")
+require("nvim.plugins")
+require("nvim.languages")
